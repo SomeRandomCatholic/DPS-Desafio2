@@ -1,20 +1,20 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { createStackNavigator } from '@react-navigation/stack';
+import Login from './components/Login';
+import Registro from './components/Registro';
+import Navigator from './components/Navigator';
+import React, {useState} from 'react';
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
+
+  const [pantalla, setPantalla] = useState("Login");
+  const [userID, setUserID] = useState(-1);
+  
+  if(pantalla == "Login")
+    return( <Login setPantalla={setPantalla} setUserID={setUserID}/>)
+  else if(pantalla == "Registro")
+    return(<Registro setPantalla={setPantalla}/>)
+  else if(pantalla == "Navigator")
+    return(<Navigator setPantalla={setPantalla} userID={userID}/>)
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+
