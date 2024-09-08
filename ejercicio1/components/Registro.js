@@ -1,4 +1,4 @@
-import { Text, TextInput, TouchableHighlight, View, Alert, StyleSheet, TouchableWithoutFeedback, Keyboard, Button } from 'react-native'
+import { Text, TextInput, TouchableHighlight, View, Alert, StyleSheet, TouchableWithoutFeedback, Keyboard, Button, Image } from 'react-native'
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -24,7 +24,7 @@ const Registro = ({ setPantalla }) => {
 
         // Validar el correo
         const expresion = RegExp(/\S+@\S+\.\S+/);
-        if(!expresion.exec(correo)){
+        if (!expresion.exec(correo)) {
             Alert.alert("Error", "Debe ingresar un correo válido.");
             return;
         }
@@ -60,7 +60,7 @@ const Registro = ({ setPantalla }) => {
 
             guardarUsuario(JSON.stringify(nuevo));
 
-            Alert.alert("Mensaje", "Usuario agregado con éxito", [{text: "Ok", onPress: () => setPantalla("Login")}]);
+            Alert.alert("Mensaje", "Usuario agregado con éxito", [{ text: "Ok", onPress: () => setPantalla("Login") }]);
 
         }
 
@@ -92,17 +92,26 @@ const Registro = ({ setPantalla }) => {
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <View style={styles.container} >
-                <TouchableHighlight onPress={() => setPantalla("Login")}>
-                    <Text>Regresar</Text>
-                </TouchableHighlight>
-                <Text>Registrarse</Text>
-                <TextInput placeholder='Usuario' onChangeText={text => setUsuario(text.trim())} />
-                <TextInput placeholder='Correo' onChangeText={text => setCorreo(text.trim())} keyboardType='email-address' />
-                <TextInput placeholder='Contraseña' onChangeText={text => setContra(text.trim())} />
-                <TextInput placeholder='Confirmar contraseña' onChangeText={text => setPass2(text.trim())} />
 
-                <Button onPress={() => validar()} title="Registrarse" />
+                <Image source={require('../assets/TituloRegistro.png')} style={styles.titulo} />
 
+                <TextInput placeholder='Usuario' onChangeText={text => setUsuario(text.trim())} style={styles.input} />
+
+                <TextInput placeholder='Correo' onChangeText={text => setCorreo(text.trim())} keyboardType='email-address' style={styles.input} />
+
+                <TextInput placeholder='Contraseña' onChangeText={text => setContra(text.trim())} style={styles.input} />
+
+                <TextInput placeholder='Confirmar contraseña' onChangeText={text => setPass2(text.trim())} style={styles.input} />
+
+                <TouchableWithoutFeedback onPress={() => validar()}>
+                    <View style={styles.inputButton}>
+                        <Text style={styles.buttonText}>Registrarse</Text>
+                    </View>
+                </TouchableWithoutFeedback>
+
+                <Text onPress={() => {
+                    setPantalla("Login");
+                }} style={styles.link}>Regresar</Text>
             </View>
         </TouchableWithoutFeedback>
     )
@@ -115,7 +124,40 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        alignItems: 'center',
         justifyContent: 'center',
+        alignItems: 'center',
     },
+    titulo: {
+        width: 300,
+        height: 150,
+    },
+    input: {
+        width: 320,
+        height: 45,
+        paddingLeft: 10,
+        fontSize: 16,
+        borderColor: 'grey',
+        borderWidth: 1,
+        marginTop: 20,
+        borderRadius: 8,
+    },
+    inputButton: {
+        width: 320,
+        height: 45,
+        backgroundColor: '#1873c7',
+        marginTop: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 8,
+    },
+    buttonText: {
+        fontSize: 20,
+        color: 'white',
+    },
+    link: {
+        marginTop: 30,
+        fontSize: 16,
+        color: '#1873c7',
+        fontWeight: 'bold',
+    }
 })

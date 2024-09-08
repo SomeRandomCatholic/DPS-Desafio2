@@ -1,6 +1,7 @@
-import { Text, TextInput, TouchableHighlight, View, Alert, StyleSheet, TouchableWithoutFeedback, Keyboard, Button } from 'react-native'
-import { isValidElement, useEffect, useState } from 'react';
+import { Text, TextInput, Image, View, Alert, StyleSheet, TouchableWithoutFeedback, Keyboard, Button, Touchable } from 'react-native'
+import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { TouchableHighlight } from 'react-native-gesture-handler';
 
 const Login = ({ setPantalla, setUserID }) => {
 
@@ -69,19 +70,25 @@ const Login = ({ setPantalla, setUserID }) => {
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <View style={styles.container} >
 
-                <Text>Agenda</Text>
-                <TextInput placeholder='Correo / Usuario' onChangeText={text => setUsuario(text.trim())} value={usuario} />
-                <TextInput placeholder='Contraseña' onChangeText={text => setContra(text.trim())} secureTextEntry={true} value={contra} />
+                <Image source={require('../assets/TituloLogin.png')} style={styles.titulo} />
+                
+                <TextInput placeholder='Correo / Usuario' onChangeText={text => setUsuario(text.trim())} value={usuario} style={styles.input} />
+                
+                <TextInput placeholder='Contraseña' onChangeText={text => setContra(text.trim())} secureTextEntry={true} value={contra} style={styles.input} />
+                
+                <TouchableWithoutFeedback onPress={() => validar()}>
+                    <View style={styles.inputButton}>
+                        <Text style={styles.buttonText}>Ingresar</Text>
+                    </View>
+                </TouchableWithoutFeedback>
 
-                <Button onPress={() => validar()} title="Ingresar" />
-
-                <View>
-                    <Text>¿No tienes una cuenta?</Text>
+                <View style={styles.footer}>
+                    <Text style={styles.question}>¿No tienes una cuenta?</Text>
                     <Text onPress={() => {
                         setUsuario("");
                         setContra("");
                         setPantalla("Registro");
-                    }}>Regístrate</Text>
+                    }} style={styles.link}>Regístrate</Text>
                 </View>
             </View>
 
@@ -95,9 +102,50 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        alignItems: 'center',
         justifyContent: 'center',
+        alignItems: 'center',
     },
-
-
+    titulo: {
+        width: 300,
+        height: 150,
+    },
+    input: {
+        width: 320,
+        height: 45,
+        paddingLeft: 10,
+        fontSize: 16,
+        borderColor: 'grey',
+        borderWidth: 1,
+        marginTop: 20,
+        borderRadius: 8,
+    },
+    inputButton: {
+        width: 320,
+        height: 45,
+        backgroundColor: '#1873c7',
+        marginTop: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 8,
+    },
+    buttonText:{
+        fontSize: 20,
+        color: 'white',
+    },
+    footer:{
+        width: 320,
+        flexDirection: 'row',
+        justifyContent: 'space-evenly',
+        position: 'absolute',
+        bottom: 50,
+    },
+    question:{
+        fontSize: 16,
+        color: 'grey',
+    },
+    link:{
+        fontSize: 16,
+        color: '#1873c7',
+        fontWeight: 'bold',
+    }
 });

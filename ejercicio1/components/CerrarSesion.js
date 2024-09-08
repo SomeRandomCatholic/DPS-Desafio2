@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, StyleSheet, Alert, Button } from "react-native";
+import { View, Text, StyleSheet, Alert, TouchableWithoutFeedback } from "react-native";
 
 const CerrarSesion = ({ route }) => {
 
@@ -18,19 +18,35 @@ const CerrarSesion = ({ route }) => {
         )
     }
     return (
-        <View style={sytles.container} >
-            <Button onPress={cerrarSesion} title="Cerrar Sesión" />
+        <View style={styles.container} >
+            <TouchableWithoutFeedback onPress={() => cerrarSesion()}>
+                    <View style={styles.inputButton}>
+                        <Text style={styles.buttonText}>Cerrar Sesión</Text>
+                    </View>
+                </TouchableWithoutFeedback>
         </View>
     )
 }
 
 export default CerrarSesion;
 
-const sytles = StyleSheet.create({
+const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        backgroundColor: '#fff',
+        height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    inputButton: {
+        width: 320,
+        height: 45,
+        backgroundColor: '#1873c7',
+        marginTop: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 8,
+    },
+    buttonText:{
+        fontSize: 20,
+        color: 'white',
     },
 })

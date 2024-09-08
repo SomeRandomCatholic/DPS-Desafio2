@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, StyleSheet, TouchableHighlight, Keyboard, Button, Alert } from "react-native";
+import { View, Text, TextInput, StyleSheet, Keyboard, Alert, TouchableHighlight } from "react-native";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -44,11 +44,11 @@ const AgregarPersona = ({ navigation, route }) => {
         if (contactosGlobal.length != 0) {
 
             contactosGlobal.forEach((element) => {
-                if (element.userID = userID) {
+                if (element.userID == userID) {
                     const nombreElemento = element.nombre + " " + element.apellido;
                     const nombreNuevo = nombre + " " + apellido;
                     if (nombreElemento === nombreNuevo) {
-                        Alert.alert("Error", "El contacto ya había sido añadido");
+                        Alert.alert("Error", "El contacto ya había sido añadido " + userID + " y " + element.userID);
                         bandera = false;
                         return;
                     }
@@ -58,7 +58,7 @@ const AgregarPersona = ({ navigation, route }) => {
 
         }
 
-        
+
         if (bandera) {
             let key = contactosGlobal.length + 1;
             const nuevoContacto = { userID, nombre, apellido, correo, telefono, fecha, key };
@@ -67,9 +67,10 @@ const AgregarPersona = ({ navigation, route }) => {
 
             guardarContacto(JSON.stringify(nuevo));
 
-            Alert.alert("Mensaje", "Contacto agregado con éxito", [{text: "Ok", onPress: () => navigation.navigate("Contactos", {cargar: true})}]);
+            Alert.alert("Mensaje", "Contacto agregado con éxito",
+                [{ text: "Ok", onPress: () => navigation.navigate("Contactos", { cargar: true }) }]);
             limpiar();
-        } 
+        }
     }
 
     useEffect(() => {
@@ -95,7 +96,7 @@ const AgregarPersona = ({ navigation, route }) => {
         }
     }
 
-    const limpiar = () =>{
+    const limpiar = () => {
         setNombre("");
         setApellido("");
         setCorreo("");
@@ -105,13 +106,19 @@ const AgregarPersona = ({ navigation, route }) => {
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <View style={styles.container} >
-                <TextInput placeholder='Nombre' onChangeText={texto => setNombre(texto.trim())} value={nombre} />
-                <TextInput placeholder='Apellido' onChangeText={texto => setApellido(texto.trim())} value={apellido} />
-                <TextInput placeholder='Correo' onChangeText={texto => setCorreo(texto.trim())} keyboardType="email-address" value={correo} />
-                <TextInput placeholder='Número de Teléfono (con guión)' onChangeText={texto => setTelefono(texto.trim())} keyboardType="number-pad" value={telefono} />
+                <TextInput placeholder='Nombre' onChangeText={texto => setNombre(texto.trim())} value={nombre} style={styles.input} />
+
+                <TextInput placeholder='Apellido' onChangeText={texto => setApellido(texto.trim())} value={apellido} style={styles.input} />
+
+                <TextInput placeholder='Correo' onChangeText={texto => setCorreo(texto.trim())} keyboardType="email-address" value={correo} style={styles.input} />
+
+                <TextInput placeholder='Número de Teléfono (con guión)' onChangeText={texto => setTelefono(texto.trim())} keyboardType="number-pad" value={telefono} style={styles.input} />
+
                 <View>
 
-                    <Text onPress={() => setCalendarioVisible(true)}>{fecha[1] ? fecha[1] : 'Fecha de Cumpleaños'}</Text>
+                    <TouchableHighlight onPress={() => setCalendarioVisible(true)}>
+                        <TextInput placeholder={fecha[1] ? fecha[1] : 'Fecha de Cumpleaños'} editable={false} style={styles.input}/>
+                    </TouchableHighlight>
 
                     <DateTimePickerModal
                         isVisible={calendarioVisible}
@@ -124,8 +131,12 @@ const AgregarPersona = ({ navigation, route }) => {
                         confirmTextIOS="Confirmar"
                     />
                 </View>
-                <Button onPress={() => validar()} title="Agregar Persona" />
-                    <Button onPress={() => AsyncStorage.removeItem("contacts")} title="Borrar"/>
+
+                <TouchableWithoutFeedback onPress={() => validar()}>
+                    <View style={styles.inputButton}>
+                        <Text style={styles.buttonText}>Agregar Persona</Text>
+                    </View>
+                </TouchableWithoutFeedback>
             </View>
         </TouchableWithoutFeedback>
     )
@@ -136,8 +147,31 @@ export default AgregarPersona;
 const styles = StyleSheet.create({
     container: {
         height: '100%',
-        backgroundColor: '#fff',
         alignItems: 'center',
         justifyContent: 'center',
-    }
+    },
+    input: {
+        width: 320,
+        height: 45,
+        paddingLeft: 10,
+        fontSize: 16,
+        borderColor: 'grey',
+        borderWidth: 1,
+        marginTop: 20,
+        borderRadius: 8,
+        backgroundColor: 'white',
+    },
+    inputButton: {
+        width: 320,
+        height: 45,
+        backgroundColor: '#1873c7',
+        marginTop: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 8,
+    },
+    buttonText:{
+        fontSize: 20,
+        color: 'white',
+    },
 })

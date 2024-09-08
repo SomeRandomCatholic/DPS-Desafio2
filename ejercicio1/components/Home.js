@@ -1,13 +1,14 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, Button, FlatList, Alert } from "react-native";
+import { View, Text, StyleSheet, FlatList, Alert, TouchableWithoutFeedback } from "react-native";
 import { TouchableHighlight } from "react-native-gesture-handler";
+import { Icon } from 'react-native-elements'
 
 const Home = ({ navigation, route }) => {
 
     const [contactosGlobal, setContactosGlobal] = useState([]);
     const userID = route.params.userID;
-    
+
     const obtenerContactos = async () => {
         try {
             const obtenidos = await AsyncStorage.getItem("contacts");
@@ -20,13 +21,13 @@ const Home = ({ navigation, route }) => {
         }
     }
 
-    useEffect(() => { 
+    useEffect(() => {
         obtenerContactos();
     }, []);
 
-    useEffect(() => { 
+    useEffect(() => {
         obtenerContactos();
-        navigation.setParams({cargar: false});
+        navigation.setParams({ cargar: false });
     }, [route.params.cargar == true]);
 
     const renderContactos = ({ item }) => {
@@ -36,28 +37,32 @@ const Home = ({ navigation, route }) => {
             const dias = calcularDistancia(item.fecha[0]);
 
             if (dias < 0) {
-                estilo = "red";
+                estilo = "pasado";
                 resultado = "Pasado";
             } else if (dias == 0) {
-                estilo = "green";
-                resultado = "Hoy Cumpleaños";
-            } else if(dias == 1){
-                estilo = "blue";
+                estilo = "presente";
+                resultado = "Hoy\nCumpleaños";
+            } else if (dias == 1) {
+                estilo = "futuro";
                 resultado = dias + " día"
-            }else{
-                estilo = "blue";
+            } else {
+                estilo = "futuro";
                 resultado = dias + " días";
             }
 
+            const detEstilo = () => {
+                if (estilo == "pasado")
+                    return styles.pasado;
+                else if (estilo == "presente")
+                    return styles.presente;
+                else if (estilo == "futuro")
+                    return styles.futuro;
+            }
             return (
-                <TouchableHighlight style={{
-                    padding: 10,
-                    borderBottomWidth: 3,
-                    borderBottomColor: estilo
-                }} onLongPress={() => eliminarContacto(item.key)}>
-                    <View>
-                        <Text>{item.nombre} {item.apellido}</Text>
-                        <Text>{resultado}</Text>
+                <TouchableHighlight style={detEstilo()} onLongPress={() => eliminarContacto(item.key)}>
+                    <View style={styles.elementoLista}>
+                        <Text style={styles.textoLista}>{item.nombre} {item.apellido}</Text>
+                        <Text style={estilo == "presente" ? styles.textoHoy : styles.textoLista}>{resultado}</Text>
                     </View>
                 </TouchableHighlight>
             )
@@ -113,25 +118,38 @@ const Home = ({ navigation, route }) => {
         });
     }
 
+    const BotonCircular = () => {
+        return (
+            <TouchableWithoutFeedback onPress={() => navigation.navigate("Agregar Persona")}>
+                <View style={styles.buttonAdd}>
+                    <Text style={styles.buttonText}>+</Text>
+                </View>
+            </TouchableWithoutFeedback>
+        )
+    }
     if (hayContactos)
         return (
             <View style={styles.container}>
-
+                <Text style={styles.titulo}>Mantenga presionado un contacto para eliminarlo</Text>
                 <FlatList
                     data={contactosGlobal}
                     renderItem={renderContactos}
                     keyExtractor={item => item.key}
                 />
-                <Button title="+" onPress={() => navigation.navigate("Agregar Persona")} />
+
+                <BotonCircular/>
 
             </View>
         )
     else
         return (
             <View style={styles.container}>
-                <Text>No hay registros</Text>
-                <Text>Cara triste</Text>
-                <Button title="+" onPress={() => navigation.navigate("Agregar Persona")} />
+                <Text style={styles.mensaje}>¡No hay registros!</Text>
+                <Icon
+                    name='sentiment-very-dissatisfied'
+                    color='grey'
+                    size={100} />
+                <BotonCircular/>
             </View>)
 
 }
@@ -140,24 +158,79 @@ export default Home;
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        backgroundColor: '#fff',
+        height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
     },
     pasado: {
-        padding: 10,
-        borderBottomWidth: 3,
-        borderBottomColor: 'red'
+        width: 350,
+        height: 60,
+        marginTop: 20,
+        borderRadius: 25,
+        backgroundColor: "#e34444",
+
     },
     presente: {
-        padding: 10,
-        borderBottomWidth: 3,
-        borderBottomColor: 'green'
+        width: 350,
+        height: 60,
+        marginTop: 20,
+        borderRadius: 25,
+        backgroundColor: "#a3ca72",
     },
     futuro: {
-        padding: 10,
-        borderBottomWidth: 3,
-        borderBottomColor: 'blue'
-    }
+        width: 350,
+        height: 60,
+        marginTop: 20,
+        borderRadius: 25,
+        backgroundColor: "#2a7bc7",
+    },
+    elementoLista: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        paddingLeft: 20,
+        paddingRight: 20,
+    },
+    textoLista: {
+        textAlign: 'center',
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 16,
+        paddingTop: 15,
+    },
+    textoHoy: {
+        textAlign: 'center',
+        color: 'white',
+        fontWeight: 'bold',
+        fontSize: 16,
+        paddingTop: 8,
+    },
+    mensaje: {
+        fontSize: 30,
+        marginBottom: 20,
+        color: 'grey',
+        fontWeight: 'bold',
+    },
+    titulo: {
+        color: 'grey',
+        fontWeight: 'bold',
+        fontSize: 20,
+        marginTop: 20
+    },
+    buttonAdd: {
+        width: 60,
+        height: 60,
+        backgroundColor: '#1873c7',
+        marginTop: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 50,
+        position: 'absolute',
+        right: 20,
+        bottom: 30,
+    },
+    buttonText: {
+        fontSize: 25,
+        color: 'white',
+    },
+
 })
