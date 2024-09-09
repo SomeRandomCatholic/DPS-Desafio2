@@ -22,6 +22,7 @@ const Home = ({ navigation, route }) => {
         }
     }
 
+    // Cada vez que esté mostrandose la pantalla, debe volver a obtener los contactos.
     useFocusEffect(
         React.useCallback( () =>{
             obtenerContactos();

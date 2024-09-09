@@ -86,6 +86,7 @@ const AgregarPersona = ({ navigation, route }) => {
         }
     }
 
+    // Cada vez que se enfoque esta pantalla, debe volver a obtener los contactos.
     useFocusEffect(
         React.useCallback( () =>{
             obtenerContactos();
