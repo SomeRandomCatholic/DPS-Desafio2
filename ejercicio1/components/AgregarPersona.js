@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, StyleSheet, Keyboard, Alert, TouchableHighlight } from "react-native";
+import { View, Text, TextInput, StyleSheet, Keyboard, Alert, TouchableOpacity } from "react-native";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import UUID from 'react-native-uuid';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 const AgregarPersona = ({ navigation, route }) => {
     const [nombre, setNombre] = useState("");
@@ -45,10 +48,10 @@ const AgregarPersona = ({ navigation, route }) => {
 
             contactosGlobal.forEach((element) => {
                 if (element.userID == userID) {
-                    const nombreElemento = element.nombre + " " + element.apellido;
-                    const nombreNuevo = nombre + " " + apellido;
+                    const nombreElemento = element.nombre.trim() + " " + element.apellido.trim();
+                    const nombreNuevo = nombre.trim() + " " + apellido.trim();
                     if (nombreElemento === nombreNuevo) {
-                        Alert.alert("Error", "El contacto ya había sido añadido " + userID + " y " + element.userID);
+                        Alert.alert("Error", "El contacto ya había sido añadido");
                         bandera = false;
                         return;
                     }
@@ -58,36 +61,36 @@ const AgregarPersona = ({ navigation, route }) => {
 
         }
 
-
         if (bandera) {
-            let key = contactosGlobal.length + 1;
-            const nuevoContacto = { userID, nombre, apellido, correo, telefono, fecha, key };
+            const nuevoContacto = { userID, nombre, apellido, correo, telefono, fecha };
+            nuevoContacto.key = UUID.v4(); // Genera una ID random
             const nuevo = [...contactosGlobal, nuevoContacto];
             setContactosGlobal(nuevo);
 
             guardarContacto(JSON.stringify(nuevo));
 
             Alert.alert("Mensaje", "Contacto agregado con éxito",
-                [{ text: "Ok", onPress: () => navigation.navigate("Contactos", { cargar: true }) }]);
+                [{ text: "Ok", onPress: () => navigation.navigate("Contactos") }]);
             limpiar();
         }
     }
 
-    useEffect(() => {
-        const obtenerContactos = async () => {
-            try {
-                const contacts = await AsyncStorage.getItem("contacts");
-                if (contacts)
-                    setContactosGlobal(JSON.parse(contacts));
+    const obtenerContactos = async () => {
+        try {
+            const contacts = await AsyncStorage.getItem("contacts");
+            if (contacts) 
+                setContactosGlobal(JSON.parse(contacts));       
 
-            } catch (error) {
-                console.log(error);
-            }
+        } catch (error) {
+            console.log(error);
         }
+    }
 
-        obtenerContactos();
-    }, []);
-
+    useFocusEffect(
+        React.useCallback( () =>{
+            obtenerContactos();
+        }, [])
+    );
     const guardarContacto = async (newUser) => {
         try {
             await AsyncStorage.setItem("contacts", newUser);
@@ -106,9 +109,9 @@ const AgregarPersona = ({ navigation, route }) => {
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <View style={styles.container} >
-                <TextInput placeholder='Nombre' onChangeText={texto => setNombre(texto.trim())} value={nombre} style={styles.input} />
+                <TextInput placeholder='Nombre' onChangeText={texto => setNombre(texto)} value={nombre} style={styles.input} />
 
-                <TextInput placeholder='Apellido' onChangeText={texto => setApellido(texto.trim())} value={apellido} style={styles.input} />
+                <TextInput placeholder='Apellido' onChangeText={texto => setApellido(texto)} value={apellido} style={styles.input} />
 
                 <TextInput placeholder='Correo' onChangeText={texto => setCorreo(texto.trim())} keyboardType="email-address" value={correo} style={styles.input} />
 
@@ -116,9 +119,9 @@ const AgregarPersona = ({ navigation, route }) => {
 
                 <View>
 
-                    <TouchableHighlight onPress={() => setCalendarioVisible(true)}>
-                        <TextInput placeholder={fecha[1] ? fecha[1] : 'Fecha de Cumpleaños'} editable={false} style={styles.input}/>
-                    </TouchableHighlight>
+                    <TouchableOpacity onPress={() => setCalendarioVisible(true)}>
+                        <TextInput placeholder={fecha[1] ? fecha[1] : 'Fecha de Cumpleaños'} editable={false} style={styles.input} />
+                    </TouchableOpacity>
 
                     <DateTimePickerModal
                         isVisible={calendarioVisible}
@@ -170,7 +173,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         borderRadius: 8,
     },
-    buttonText:{
+    buttonText: {
         fontSize: 20,
         color: 'white',
     },

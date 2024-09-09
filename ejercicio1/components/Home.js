@@ -1,8 +1,9 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, FlatList, Alert, TouchableWithoutFeedback } from "react-native";
-import { TouchableHighlight } from "react-native-gesture-handler";
+import { TouchableOpacity } from "react-native-gesture-handler";
 import { Icon } from 'react-native-elements'
+import { useFocusEffect } from '@react-navigation/native';
 
 const Home = ({ navigation, route }) => {
 
@@ -13,22 +14,20 @@ const Home = ({ navigation, route }) => {
         try {
             const obtenidos = await AsyncStorage.getItem("contacts");
 
-            if (obtenidos)
-                setContactosGlobal(JSON.parse(obtenidos));
+            if (obtenidos) 
+                setContactosGlobal(JSON.parse(obtenidos));    
 
         } catch (error) {
             console.log(error);
         }
     }
 
-    useEffect(() => {
-        obtenerContactos();
-    }, []);
+    useFocusEffect(
+        React.useCallback( () =>{
+            obtenerContactos();
+        }, [])
+    );
 
-    useEffect(() => {
-        obtenerContactos();
-        navigation.setParams({ cargar: false });
-    }, [route.params.cargar == true]);
 
     const renderContactos = ({ item }) => {
         if (item.userID == userID) {
@@ -59,12 +58,12 @@ const Home = ({ navigation, route }) => {
                     return styles.futuro;
             }
             return (
-                <TouchableHighlight style={detEstilo()} onLongPress={() => eliminarContacto(item.key)}>
+                <TouchableOpacity style={detEstilo()} onLongPress={() => eliminarContacto(item.key)}>
                     <View style={styles.elementoLista}>
-                        <Text style={styles.textoLista}>{item.nombre} {item.apellido}</Text>
+                        <Text style={styles.textoLista}>{item.nombre.trim()} {item.apellido.trim()}</Text>
                         <Text style={estilo == "presente" ? styles.textoHoy : styles.textoLista}>{resultado}</Text>
                     </View>
-                </TouchableHighlight>
+                </TouchableOpacity>
             )
         }
 
@@ -84,7 +83,7 @@ const Home = ({ navigation, route }) => {
 
     const eliminarContacto = key => {
 
-        Alert.alert("Eliminar Persona", "¿Estás seguro de eliminar a esta persona?",
+        Alert.alert("Eliminar Persona", `¿Estás seguro de eliminar a esta persona?`,
             [
                 {
                     text: "Aceptar",
@@ -137,7 +136,7 @@ const Home = ({ navigation, route }) => {
                     keyExtractor={item => item.key}
                 />
 
-                <BotonCircular/>
+                <BotonCircular />
 
             </View>
         )
@@ -149,7 +148,7 @@ const Home = ({ navigation, route }) => {
                     name='sentiment-very-dissatisfied'
                     color='grey'
                     size={100} />
-                <BotonCircular/>
+                <BotonCircular />
             </View>)
 
 }

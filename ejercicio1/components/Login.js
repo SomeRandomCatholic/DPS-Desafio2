@@ -1,7 +1,6 @@
-import { Text, TextInput, Image, View, Alert, StyleSheet, TouchableWithoutFeedback, Keyboard, Button, Touchable } from 'react-native'
+import { Text, TextInput, Image, View, Alert, StyleSheet, TouchableWithoutFeedback, Keyboard} from 'react-native'
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { TouchableHighlight } from 'react-native-gesture-handler';
 
 const Login = ({ setPantalla, setUserID }) => {
 
@@ -91,7 +90,6 @@ const Login = ({ setPantalla, setUserID }) => {
                     }} style={styles.link}>Regístrate</Text>
                 </View>
             </View>
-
         </TouchableWithoutFeedback >
     )
 }
