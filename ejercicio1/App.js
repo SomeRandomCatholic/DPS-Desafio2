@@ -1,4 +1,3 @@
-import { createStackNavigator } from '@react-navigation/stack';
 import Login from './components/Login';
 import Registro from './components/Registro';
 import Navigator from './components/Navigator';

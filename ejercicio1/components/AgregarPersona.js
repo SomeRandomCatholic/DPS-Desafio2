@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import { View, Text, TextInput, StyleSheet, Keyboard, Alert, TouchableOpacity } from "react-native";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import DateTimePickerModal from "react-native-modal-datetime-picker";
