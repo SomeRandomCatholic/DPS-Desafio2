@@ -72,7 +72,9 @@ const Home = ({ navigation, route }) => {
 
     const calcularDistancia = (cumpleaños) => {
         const fechaHoy = new Date();
+        const añoActual = fechaHoy.getFullYear();
         const fechaCumple = new Date(cumpleaños);
+        fechaCumple.setFullYear(añoActual);
 
         const diferencia = fechaCumple - fechaHoy;
 
