@@ -1,5 +1,5 @@
 import React, {useState, useCallback} from 'react';
-import { View, TouchableOpacity, Text, StyleSheet, Image, FlatList, Modal, TextInput } from 'react-native';
+import { View, TouchableOpacity, Text, StyleSheet, Image, FlatList, Modal, TextInput, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { Entypo } from '@expo/vector-icons';
@@ -14,155 +14,162 @@ export default function ListaArchivos() {
     const [modificar, setModificar] = useState(false);
     const [eliminar, setEliminar] = useState(false);
 
+    //función para obtener listado de archivos, que se actualiza cada vez que se muestra la vista
     useFocusEffect(
         useCallback(() => {
-          const obtenerDatos = async () => {
-            try {
-              const datos = await AsyncStorage.getItem('archivos');
-              if (datos) {
-                setArchivos(JSON.parse(datos))
-              }
-            } catch (error) {
-              console.log('Error al obtener los datos', error);
-            }
-          };
-    
-          obtenerDatos();
+            const obtenerDatos = async () => {
+                try {
+                    const datos = await AsyncStorage.getItem('archivos');
+                    if (datos) {
+                        setArchivos(JSON.parse(datos))
+                    }
+                } catch (error) {
+                    console.log('Error al obtener los datos', error);
+                }
+            };
+            obtenerDatos();
         }, [])
     );
 
+    //función para abrir modal para modificar
     const abrirModal = (item) => {
         setSelectedItem(item);
         setModalVisible(true);
         setModificar(true);
     };
 
+    //función para abrir modal para eliminar
     const abrirModalE = (item) => {
         setSelectedItem(item);
         setModalVisible(true);
         setEliminar(true);
     };
 
+    //función para actualizar descripción
     const actualizarDescripcion = async () => {
         selectedItem.descripcion = nuevaDescripcion;
         try {
-            // Obtener todos los items guardados en AsyncStorage
             const itemsStorage = await AsyncStorage.getItem('archivos');
             const items = itemsStorage ? JSON.parse(itemsStorage) : [];
-    
-            // Actualizar el item específico en la lista
             const updatedItems = items.map(item =>
                 item.id === selectedItem.id ? selectedItem : item
             );
-    
-            // Guardar la lista actualizada en AsyncStorage
             await AsyncStorage.setItem('archivos', JSON.stringify(updatedItems));
         } catch (error) {
             console.log('Error al guardar en AsyncStorage', error);
         }
-        console.log(selectedItem);
         setModalVisible(false);
         setModificar(false);
     };
 
+    //función para eliminar archivo
     const eliminarArchivo = async () => {
         try {
             const itemsStorage = await AsyncStorage.getItem('archivos');
             const items = itemsStorage ? JSON.parse(itemsStorage) : [];
-    
             const updatedItems = items.filter(item => item.id !== selectedItem.id);
-    
             await AsyncStorage.setItem('archivos', JSON.stringify(updatedItems));
             setArchivos(updatedItems);
             setSelectedItem(null);
-    
         } catch (error) {
             console.log('Error al eliminar el item', error);
         }
         setModalVisible(false);
         setEliminar(false);
+        Alert.alert("Archivo eliminado");
     };
 
     return (
         <View style={styles.container}>
-            {selectedItem && modificar && (<Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                    setModalVisible(false);
-                    setModificar(false);
-                }}
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalText}>Modifica la descripción del archivo:</Text>
-                        <TextInput
-                            style={styles.input} placeholder="  Añadir Descripción"
-                            onChangeText={setNuevaDescripcion}
-                        />
-                        <TouchableOpacity style={styles.button} onPress={actualizarDescripcion}>
-                            <Text style={styles.buttonText}>Modificar</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.button} onPress={() => {setModalVisible(false); setModificar(false);}}>
-                            <Text style={styles.buttonText}>Cerrar</Text>
-                        </TouchableOpacity>
-                        
+            {selectedItem && modificar && ( //si se quiere abrir modal para modificar
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={() => {
+                        setModalVisible(false);
+                        setModificar(false);
+                    }}
+                >
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalView}>
+                            <Text style={styles.modalText}>Modifica la descripción del archivo:</Text>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="  Añadir Descripción"
+                                onChangeText={setNuevaDescripcion}
+                            />
+                            <TouchableOpacity style={styles.button} onPress={actualizarDescripcion}>
+                                <Text style={styles.buttonText}>Modificar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.button} onPress={() => {setModalVisible(false); setModificar(false);}}>
+                                <Text style={styles.buttonText}>Cerrar</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                </View>
-            </Modal>)}
-            {selectedItem && eliminar && (<Modal
-                animationType="slide"
-                transparent={true}
-                visible={modalVisible}
-                onRequestClose={() => {
-                    setModalVisible(false);
-                    setEliminar(false);
-                }}
-            >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalView}>
-                        <Text style={styles.modalText}>¿Está seguro que desea eliminar este archivo?</Text>
-                        <TouchableOpacity style={styles.button} onPress={eliminarArchivo}>
-                            <Text style={styles.buttonText}>Eliminar</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity style={styles.button} onPress={() => {setModalVisible(false); setEliminar(false);}}>
-                            <Text style={styles.buttonText}>Cerrar</Text>
-                        </TouchableOpacity>
-                        
+                </Modal>
+            )}
+            {selectedItem && eliminar && ( //si se quiere abrir modal para eliminar
+                <Modal
+                    animationType="slide"
+                    transparent={true}
+                    visible={modalVisible}
+                    onRequestClose={() => {
+                        setModalVisible(false);
+                        setEliminar(false);
+                    }}
+                >
+                    <View style={styles.modalContainer}>
+                        <View style={styles.modalView}>
+                            <Text style={styles.modalText}>¿Está seguro que desea eliminar este archivo?</Text>
+                            <TouchableOpacity style={styles.button} onPress={eliminarArchivo}>
+                                <Text style={styles.buttonText}>Eliminar</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity style={styles.button} onPress={() => {setModalVisible(false); setEliminar(false);}}>
+                                <Text style={styles.buttonText}>Cerrar</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
-                </View>
-            </Modal>)}
-            {archivos.length == 0 ? (<Text> 
-                No hay archivos, toma una foto o graba un video
-            </Text>) : 
-            (<FlatList
-                data={archivos}
-                renderItem={ ({item}) => <View style={styles.containerCamara}>
-                {item.tipo==1 && (<Image source={{uri: item['uri']}} style={styles.foto}/>)}
-                {item.tipo==2 && (<Video style={styles.foto} source={{uri: item['uri']}} useNativeControls resizeMode={ResizeMode.CONTAIN}/>)}
-                <View>
-                <Text style={styles.descripcion}>{item.descripcion}</Text>
-                <View style={styles.ControlsContainer}>
-                <Text style={styles.opciones}>
-                    <Entypo name={'location-pin'} size={14} color={'black'} />{item.ubicacion}
+                </Modal>
+            )}
+            {archivos.length == 0 ? ( //si no hay modal activo y no hay archivos guardados
+                <Text> 
+                    No hay archivos, toma una foto o graba un video
                 </Text>
-                    <Button 
-                      icon='edit'
-                      onPress={() => abrirModal(item)} color={'black'}
-                    />
-                    <Button 
-                    icon='trash'
-                    color={'black'}
-                    onPress={() => abrirModalE(item)}
-                    />
-                </View>
-                </View>
-                </View>}
-                keyExtractor={ archivo => archivo.id}
-            />)}
+            ) : ( //si no hay modal activo y hay archivos guardados
+                <FlatList
+                    data={archivos}
+                    renderItem={ ({item}) => 
+                        <View style={styles.containerCamara}>
+                            {item.tipo==1 && ( //si se muestra una imagen (archivo tipo 1)
+                                <Image source={{uri: item['uri']}} style={styles.foto}/>
+                            )}
+                            {item.tipo==2 && ( //si se muestra un video (archivo tipo 2)
+                                <Video style={styles.foto} source={{uri: item['uri']}} useNativeControls resizeMode={ResizeMode.CONTAIN}/>
+                            )}
+                            <View>
+                                <Text style={styles.descripcion}>{item.descripcion}</Text>
+                                <View style={styles.ControlsContainer}>
+                                    <Text style={styles.opciones}>
+                                        <Entypo name={'location-pin'} size={14} color={'black'} />{item.ubicacion}
+                                    </Text>
+                                    <Button 
+                                        icon='edit'
+                                        onPress={() => abrirModal(item)}
+                                        color={'black'}
+                                    />
+                                    <Button 
+                                        icon='trash'
+                                        color={'black'}
+                                        onPress={() => abrirModalE(item)}
+                                    />
+                                </View>
+                            </View>
+                        </View>}
+                    keyExtractor={ archivo => archivo.id}
+                />
+            )}
         </View>
-        
     );
 }
 
@@ -207,8 +214,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         backgroundColor: 'rgba(0, 0, 0, 0.5)', // Fondo oscuro semi-transparente
-      },
-      modalView: {
+    },
+    modalView: {
         width: 300,
         backgroundColor: 'white',
         borderRadius: 10,
@@ -216,18 +223,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
-          width: 0,
-          height: 2,
+            width: 0,
+            height: 2,
         },
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
-      },
-      modalText: {
+    },
+    modalText: {
         marginBottom: 15,
         textAlign: 'center',
-      },
-      input: {
+    },
+    input: {
         marginTop: 0,
         height: 50,
         width: '90%',

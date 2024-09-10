@@ -2,21 +2,16 @@ import React from 'react';
 import { StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/Entypo';
 import Multimedia from './src/screens/Multimedia';
 import ListaArchivos from './src/screens/ListaArchivos';
 
-const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 export default function App() {
     return (
         <>
-            <StatusBar
-                barStyle="light-content"
-                backgroundColor="black"
-            />
+            <StatusBar barStyle="light-content" backgroundColor="black"/>
             <NavigationContainer>
                 <Tab.Navigator screenOptions={({ route }) => ({
                     tabBarIcon: ({ size }) => {
