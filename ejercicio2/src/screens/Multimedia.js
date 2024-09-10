@@ -29,7 +29,6 @@ export default function Multimedia() {
     useEffect(() => {
         const obtenerArchivosStorage = async () => {
             try {
-                //clearStorage();
                 const archivosStorage = await AsyncStorage.getItem('archivos');
                 if(archivosStorage) {
                     setArchivos(JSON.parse(archivosStorage))
@@ -40,16 +39,6 @@ export default function Multimedia() {
         }
         obtenerArchivosStorage();
     }, [archivos]);
-
-    //función para limpiar async storage (solo utilizada para pruebas)
-    const clearStorage = async () => {
-        try {
-            await AsyncStorage.clear();
-            console.log('Storage cleared');
-        } catch (error) {
-            console.error('Error clearing storage:', error);
-        }
-    };
 
     //función para abrir cámara para tomar fotos
     const abrirCamaraF = () => {
