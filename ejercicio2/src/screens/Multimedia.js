@@ -5,6 +5,8 @@ import { CameraView, useCameraPermissions, useMicrophonePermissions } from 'expo
 import * as MediaLibrary from 'expo-media-library';
 import Button from './Button';
 import { Video, ResizeMode} from 'expo-av';
+import * as Location from 'expo-location';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Multimedia() {
     const [cameraPermission, requestCameraPermission] = useCameraPermissions();
@@ -20,6 +22,31 @@ export default function Multimedia() {
     const [image, setImage] = useState(null);
     const [video, setVideo] = useState(null);
     const [isRecording, setIsRecording] = useState(false);
+    const [descripcion, setDescripcion] = useState(null);
+    const [archivos, setArchivos] = useState([]);
+
+    useEffect(() => {
+        const obtenerArchivosStorage = async () => {
+            try {
+                //clearStorage();
+                const archivosStorage = await AsyncStorage.getItem('archivos');
+                if(archivosStorage) {
+                    setArchivos(JSON.parse(archivosStorage))
+                }
+            } catch (error) {
+                console.log(error);
+            }
+        }
+        obtenerArchivosStorage();
+    }, [archivos]);
+    const clearStorage = async () => {
+        try {
+          await AsyncStorage.clear();
+          console.log('Storage cleared');
+        } catch (error) {
+          console.error('Error clearing storage:', error);
+        }
+      };
 
     const abrirCamaraF = () => {
         setShowCamaraF(true);
@@ -90,6 +117,24 @@ export default function Multimedia() {
             try {
                 const asset = await MediaLibrary.createAssetAsync(image);
                 const assetInfo = await MediaLibrary.getAssetInfoAsync(asset.id);
+                let { status } = await Location.requestForegroundPermissionsAsync();
+                if (status !== 'granted') {
+                    <Text style={styles.textwarning}>Se necesitan permisos para acceder a la ubicación.</Text>
+                    return;
+                }
+                let location = await Location.getCurrentPositionAsync({});
+                let ubicacion = await Location.reverseGeocodeAsync({
+                    latitude: location.coords.latitude,
+                    longitude: location.coords.longitude,
+                });
+                const archivo = { descripcion };
+                archivo.id = Date.now().toString(36)
+                archivo.tipo = 1;
+                archivo.uri = image;
+                archivo.ubicacion = ubicacion[0].city + ", " + ubicacion[0].country;
+                const archivosNuevo = [...archivos, archivo];
+                setArchivos(archivosNuevo);
+                guardarArchivos(JSON.stringify(archivosNuevo));
                 setImage(null);
             } catch (err) {
                 console.log('Error while saving the picture : ', err);
@@ -132,9 +177,22 @@ export default function Multimedia() {
             try {
                 const asset = await MediaLibrary.createAssetAsync(video);
                 const assetInfo = await MediaLibrary.getAssetInfoAsync(asset.id);
+                let location = await Location.getCurrentPositionAsync({});
+                let ubicacion = await Location.reverseGeocodeAsync({
+                    latitude: location.coords.latitude,
+                    longitude: location.coords.longitude,
+                });
+                const archivo = { descripcion };
+                archivo.id = Date.now().toString(36)
+                archivo.tipo = 2;
+                archivo.uri = video;
+                archivo.ubicacion = ubicacion[0].city + ", " + ubicacion[0].country;
+                const archivosNuevo = [...archivos, archivo];
+                setArchivos(archivosNuevo);
+                guardarArchivos(JSON.stringify(archivosNuevo));
                 setVideo(null);
             } catch (err) {
-                console.log('Error while saving the picture : ', err);
+                console.log('Error while saving the video : ', err);
             }
         }
     }
@@ -146,6 +204,14 @@ export default function Multimedia() {
             } catch (err) {
                 console.log('Error while saving the picture : ', err);
             }
+        }
+    }
+
+    const guardarArchivos = async (archivosJSON) => {
+        try {
+        await AsyncStorage.setItem('archivos', archivosJSON);
+        } catch (error) {
+            console.log(error);
         }
     }
 
@@ -228,7 +294,7 @@ export default function Multimedia() {
                     <Image source={{uri:image}} style={styles.camera}/>
                     <View style={styles.ControlsContainer}>
                         <TextInput
-                            style={styles.input} placeholder="  Añadir Descripción"
+                            style={styles.input} placeholder="  Añadir Descripción" onChangeText={setDescripcion}
                         />
                         <Button 
                           icon='check' color='green'
@@ -256,7 +322,7 @@ export default function Multimedia() {
                     />
                     <View style={styles.ControlsContainer}>
                         <TextInput
-                            style={styles.input} placeholder="  Añadir Descripción"
+                            style={styles.input} placeholder="  Añadir Descripción" onChangeText={setDescripcion}
                         />
                         <Button 
                           icon='check' color='green'

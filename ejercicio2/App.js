@@ -6,7 +6,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Icon from 'react-native-vector-icons/Entypo';
 import Multimedia from './src/screens/Multimedia';
 import ListaArchivos from './src/screens/ListaArchivos';
-import Camara from './src/screens/Camara';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
